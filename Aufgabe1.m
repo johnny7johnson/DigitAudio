@@ -3,24 +3,33 @@
 
 load('Tonhalle.mat');
 
-%Rechnen
-length = 400 * 10^-3;        %400 ms 
+%Calculate:
+length = 400 * 10^-3;           %400 ms 
 
-sampleNumber = int16(400*1000000*(1/48000));
 sampleNumber = length * Fs;
 
-y=HRIR(1:sampleNumber, 1:2);
+y=HRIR(1:sampleNumber, 1:2);    %get samples of left an right channel into matrix
+yLeft = y(1:end, 1);
+yRight = y(1:end, 2);
 t= (1:sampleNumber) * (1/Fs);
+t = t(1:end)*10^3;              %scale to milliseconds
 
-%mySmallArray = HRIR(1:sampleNumber,1:2);
+%Plot:
+figure %left channel
+%plot(t,y);
+plot(t,yLeft);
 
-%y = mySmallArray(1:end,1)*length*Fs; 
-%t = (1/400)*Fs;
-%t=(1:length(y))'/Fs;
-
-%Zeichnen
-plot(t,y);
-
-%Beschriften:
+%Label left channel:
+title('Left Channel');
 xlabel('Time (ms)'); 
 ylabel('Amplitude (dB)');
+
+figure %right channel
+plot(t,yRight);
+
+%Label right channel:
+title('Right Channel');
+xlabel('Time (ms)'); 
+ylabel('Amplitude (dB)');
+
+
