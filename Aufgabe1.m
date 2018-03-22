@@ -1,4 +1,4 @@
-%Aufgabe 1 - Teil 1
+%Aufgabe 1 - Teil 1 
 %Fs = Sample rate = 48000
 
 load('Tonhalle.mat');
@@ -33,3 +33,16 @@ xlabel('Time (ms)');
 ylabel('Amplitude (dB)');
 
 
+
+%Aufgabe 1 - Teil 2
+
+castanetesHRIR = audioread('27 Single Instrument Castanets 48.0 kHz.wav');
+castanetesFs = 48000;
+
+tCastanetes= (1: size(castanetesHRIR)) * (1/castanetesFs);
+
+figure 
+plot(tCastanetes, castanetesHRIR);
+xlabel('Time (s)'); 
+ylabel('Amplitude (dB)');
+title('Castanetes 48kHz');
