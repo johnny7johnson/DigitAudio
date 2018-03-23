@@ -34,15 +34,21 @@ ylabel('Amplitude (dB)');
 
 
 
+
 %Aufgabe 1 - Teil 2
 
-castanetesHRIR = audioread('27 Single Instrument Castanets 48.0 kHz.wav');
-castanetesFs = 48000;
+castanetesHRIR = audioread('27 Single Instrument Castanets 44.1 kHz.wav');
+castanetesFs = 44100;
 
 tCastanetes= (1: size(castanetesHRIR)) * (1/castanetesFs);
 
+%plot raw data
 figure 
 plot(tCastanetes, castanetesHRIR);
 xlabel('Time (s)'); 
 ylabel('Amplitude (dB)');
-title('Castanetes 48kHz');
+title('Castanetes 44.1kHz');
+
+[P,Q] = rat(48000/castanetesFs);
+castanetes_48kHz = resample(castanetesHRIR,P,Q);
+
