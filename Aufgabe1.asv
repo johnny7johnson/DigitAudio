@@ -69,8 +69,28 @@ castanetes_48kHz = resample(castanetesHRIR,P,Q);
 left48Raw = castanetes_48kHz(1:end, 1);
 right48Raw = castanetes_48kHz(1:end, 2);
 
+%Fold Tohalle with left castanetes
 folded_left = conv(left48Raw, HRIR(1:end, 1));
+folded_right = conv(left48Raw, HRIR(1:end, 2));
+
+foldedCastanes = [folded_left, folded_right];
+folded_44100 = resample(foldedCastaneses, Q, P);
+
+%Calculate time vector
+t_folded = (1: size(folded_left)) * (1/);
+
 figure
-plot(
+subplot(2,1,1),
+xlabel('Time (s)'); 
+plot(t_folded, folded_44100(:,1));
+ylabel('Amplitude (dB)');
+title('Left Tonalle Channel folded with left Castanets Channel - 48 kHz');
+
+subplot(2,1,2),
+plot(t_folded, folded_44100(:,2);
+xlabel('Time (s)'); 
+ylabel('Amplitude (dB)');
+title('Right Tonalle Channel folded with left Castanets Channel - 48 kHz');
+
 
     
