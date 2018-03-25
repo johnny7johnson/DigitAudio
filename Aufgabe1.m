@@ -21,7 +21,7 @@ subplot(2,1,1),
 plot(t,yLeft);
 
 %Label left channel:
-title('Left Channel');
+title('Tonhalle - Left Channel');
 xlabel('Time (ms)'); 
 ylabel('Amplitude (dB)');
 
@@ -31,7 +31,7 @@ subplot(2,1,2),
 plot(t,yRight);
 
 %Label right channel:
-title('Right Channel');
+title('Tonhalle - Right Channel');
 xlabel('Time (ms)'); 
 ylabel('Amplitude (dB)');
 
@@ -74,15 +74,18 @@ folded_left = conv(left48Raw, HRIR(1:end, 1));
 folded_right = conv(left48Raw, HRIR(1:end, 2));
 
 foldedCastanetes = [folded_left, folded_right];
+
+%Resample back to 44.1 kHz
 folded_44100 = resample(foldedCastanetes, Q, P);
 
 %Calculate time vector
 t_folded = (1: size(folded_44100(:,1))) * (1/44100);
 
+%Plot Folded Signal
 figure
 subplot(2,1,1),
-xlabel('Time (s)'); 
 plot(t_folded, folded_44100(:,1));
+xlabel('Time (s)'); 
 ylabel('Amplitude (dB)');
 title('Left Tonalle Channel folded with left Castanets Channel - 44.1 kHz');
 
@@ -92,5 +95,7 @@ xlabel('Time (s)');
 ylabel('Amplitude (dB)');
 title('Right Tonalle Channel folded with left Castanets Channel - 44.1 kHz');
 
-
-    
+%Export Audio
+audiowrite('Tonhalle folded with Left Castanetes Channel - 44100 Sampling Rate.wav', folded_44100(:,1), 44100);
+ 
+%The End
