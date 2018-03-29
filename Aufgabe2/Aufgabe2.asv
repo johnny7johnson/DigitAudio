@@ -1,0 +1,5 @@
+load('1deg_LSR4328P_ch01_48NLRNA_2400.mat');
+load('1deg_LSR4328P_ch02_48NLRNA_2400.mat');
+
+ZeroDegreePosition = 61*2;                      %because always left and right channel
+ch1=
