@@ -11,11 +11,16 @@ ch2 = extractZeroDegreeHRIR(HRIR, MAP);
 plotHRIR(ch2, Fs);
 title('Ch 2 - 0° head rotation');
 
+%Aufgabe 2
 %Convolution:
-%Aufgabe
+%
+% Mergler Johanna, Häußermann Lea, Kahn Simon, Hauck Simon
+%
 %Die Blocklänge soll 4096 (zero padding), 512 oder 64 Samples betragen (3 Versionen)
 CastanetesHRIR = audioread('27 Single Instrument Castanets 48.0 kHz.wav');
-test = convoluteBlockwise(CastanetesHRIR(:,1), ch1, 512);
+
+
+convTotalSingal(512, CastanetesHRIR(:,1), CastanetesHRIR(:,2), ch1, ch2, Fs);
 
 
 %********************************************Functions section************
@@ -38,38 +43,74 @@ ZeroDegreePosition = (IndexOfZeroInMap*2)-1;                      %because alway
 ch = MultiChannelHRIR(1:end, ZeroDegreePosition:ZeroDegreePosition+1);
 end
 
-function convSignal = convoluteBlockwise(audioTrackChannel, surroundSound, blockSize)
-%Aufgabe
-%Implementieren Sie eine blockweise Faltung mit Überlappung
-%Verwenden Sie für die Blockverarbeitung eine for-Schleife und Modulo-Indizierung.
-left = [];
-right = [];
-for i = 1:blockSize:size(audioTrackChannel)
-    %convolute signal with left an right surround sound cannels 
-    left = [left, conv(audioTrackChannel((i-1)*blockSize+1:i*blockSize), surroundSound(1:end, 1))];
-    right = [right, conv(audioTrackChannel((i-1)*blockSize+1:i*blockSize), surroundSound(1:end, 2))];
+%********************************************************************************GroupProject
+% *************************************************************************
+% Convolute and plot the left channel of the wavefile with the ch01,ch02 left
+% and the right channel of the wavefile with the ch01,ch02 right channels
+% *************************************************************************
+function convTotalSingal(blockSize, castanetsLeft, castanetsRight, ch1, ch2, Fs)
+    
+    ch01_leftEar = ch1(:,1);
+    ch01_rightEar = ch1(:,2);
+    ch02_leftEar = ch2(:,1);
+    ch02_rightEar = ch2(:,2);
 
-end 
-convSignal = [left, right];
+    %Folded singal for ch01
+    ch01_left = convBlock(castanetsLeft, ch01_leftEar, blockSize);
+    ch01_right = convBlock(castanetsLeft, ch01_rightEar, blockSize);
+    
+    %Folded signal for ch02
+    ch02_left = convBlock(castanetsRight, ch02_leftEar, blockSize);
+    ch02_right = convBlock(castanetsRight, ch02_rightEar, blockSize);
+    
+    %Add the corresponding channels
+    totalLeft = ch01_left + ch02_left;
+    totalRight = ch01_right + ch02_right;
+    
+    %t = (1: size(totalLeft)) * (1/Fs) * 10^3;
+    figure
+    subplot(2,1,1);
+    plot(totalLeft);
+    xlabel('Time in ms');
+    ylabel('Amplitude');
+    title(strcat('WaveFile left ear, Blocksize ', num2str(blockSize)));
+    
+    
+    %t= (1: size(totalRight)) * (1/Fs) * 10^3;
 
-
-%Fourier: transforma and reverse transform
-%test = fft(CastanetesHRIR);            %make fourier tranformation
-%reversed = ifft(test);                 %reverse it to normal signal
-%plot(CastanetesHRIR - test);           %Check differnce between tranformed
-                                        %and original signal
-                                        %=> do this later with aufgabe1
+    subplot(2,1,2);
+    plot(totalRight);
+    xlabel('Time in ms');
+    ylabel('Amplitude');
+    title(strcat('WaveFile right ear, Blocksize ', num2str(blockSize)));
+    
 end
 
-function folded = convBlockwise(audioTrackChannel, surroundSound, blockSize)
 
-    folded = zeros(1, length(audioTrackChannel) + length(blockSize));
-    for k = 1:blockSize:length(audioTrackChannel)
-        block = audioTrackChannel(k:k+blockSize-1);
-        foldedBlock = conv(block, surroundSound);
+% *************************************************************************
+% Fold a block with a filter file for the given block size
+% *************************************************************************
+function folded = convBlock(waveFile, filter, blockSize)
+
+    %Create result array with the size of the wavefile and the filter size
+    folded = zeros(1, length(waveFile)+length(filter));
+    
+    %Iterate through wavefile and jump to the start if each block
+    for k=1:blockSize:length(waveFile)
+        
+        %Create the block of the wavefile
+        block = waveFile(k:k+blockSize-1);
+        
+        %Fold block
+        foldedBlock = conv(block, filter);
+        
+        %Write the folded block in the result array by adding the 
+        %current value to the stored value
         for i=1:length(foldedBlock)
-           folded(k+i-1) = foldedBlock(i) + folded(k+i-1); 
+            folded(k+i-1) = foldedBlock(i) + folded(k+i-1);
         end
     end
-
 end
+
+
+%********************************************************************************EndGroupProject
