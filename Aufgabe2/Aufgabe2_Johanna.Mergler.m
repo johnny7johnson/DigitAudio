@@ -106,6 +106,7 @@ function folded = convBlock(waveFile, filter, blockSize)
     folded = zeros(1, length(waveFile)+padding);
 
 
+    
     %Iterate through wavefile and jump to the start if each block
     for k=1:blockSize:length(waveFile)-blockSize+1                    %-blockSize cheating?
         

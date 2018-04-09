@@ -1,0 +1,1 @@
+%%kreieren des (linearen) vektors durch ifft?
