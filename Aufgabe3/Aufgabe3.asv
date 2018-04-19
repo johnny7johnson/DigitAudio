@@ -10,8 +10,7 @@ counter = 1;
 convoluted = zeros(length(degrees)*2, length(castanetes)+length(HRIR)-1);            %init array
 %% teil2
 %convolution of all channels
-for d = degrees
-    d
+for d = degrees(1):degrees(end)
     currentChannel = extractXDegreeHRIR(d, HRIR, MAP);
     cast1_l=conv(currentChannel(:,1), castanetes(:,1));
     cast1_r=conv(currentChannel(:,2), castanetes(:,1)); 
