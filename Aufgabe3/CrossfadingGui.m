@@ -1,5 +1,6 @@
-
-function CrossfadingGui
+%Convs();               %incomment to convolute signals
+CreateGui();
+function CreateGui
 
 global settings h;
 
@@ -95,7 +96,7 @@ if (settings.StartButton == 1)
     settings.Start = 1;
     settings.Stop = 0;
     set(h.StartStopPushButton, 'String', 'Stop Audio Processing');
-    RealtimeProcessing(settings.blocksize,settings.samplerate); %Start audio-processing
+    StartRealtimeProcessing(settings.blocksize,settings.samplerate); %Start audio-processing
 else
     settings.fadeIn = 0;
     settings.fadeOut = 1;
