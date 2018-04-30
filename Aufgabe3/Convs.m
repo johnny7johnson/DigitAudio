@@ -62,16 +62,16 @@ ind = find(myMAP(2,:)>searchTerm, 1);
 end
 
 function sig = fadeEmUp(bichannelBlocks, blocks, blocksize)           %given the blocks in which the singla shoud be merged
-    line = linspace(0,1, blocks*blocksize);
-    sig(:,1) = conv(bichannelBlocks(:,1),line);   
-    sig(:,2) = conv(bichannelBlocks(:,2),line);
+    line = rot90(linspace(0,1, blocks*blocksize),3);
+    sig(:,1) = bichannelBlocks(:,1).*line;   
+    sig(:,2) = bichannelBlocks(:,2).*line;
 end
 
 %TODO -> do not convolute - > elementwise multiplication
 function sig = fadeEmDown(bichannelBlocks, blocks, blocksize)         %given the blocks in which the singla shoud be merged
-    line = linspace(1,0, blocks*blocksize);
-    sig(:,1) = conv(bichannelBlocks(:,1),line);
-    sig(:,2) = conv(bichannelBlocks(:,2),line);
+    line = rot90(linspace(1,0, blocks*blocksize),3);
+    sig(:,1) = bichannelBlocks(:,1).*line;
+    sig(:,2) = bichannelBlocks(:,2).*line;
 end
 
 function sig = crossfade(currentSignalBlocks, nextSignalBlocks, blocks, blocksize)

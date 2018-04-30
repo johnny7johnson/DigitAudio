@@ -58,10 +58,10 @@ settings.outputChans = outputchans;
 settings.numberInputChans = inputchans(end) - inputchans(1) +1;
 settings.numberOutputChans =  outputchans(end) - outputchans(1) + 1;
 settings.allChanList = settings.numberInputChans + settings.numberOutputChans;
-settings.fadeInRamp(:, 1) = linspace(0,1,settings.blocksize*settings.FADE_BLOCKS)';
-settings.fadeOutRamp(:, 1) = linspace(1,0,settings.blocksize*settings.FADE_BLOCKS)';
-settings.fadeStartRamp(:, 1) = linspace(0,1,settings.blocksize*settings.FADE_INOUT)';
-settings.fadeEndRamp(:, 1) = linspace(1,0,settings.blocksize*settings.FADE_INOUT)';
+settings.fadeInRamp = linspace(0,1,settings.blocksize*settings.FADE_BLOCKS)';
+settings.fadeOutRamp = linspace(1,0,settings.blocksize*settings.FADE_BLOCKS)';
+settings.fadeStartRamp = linspace(0,1,settings.blocksize*settings.FADE_INOUT)';
+settings.fadeEndRamp = linspace(1,0,settings.blocksize*settings.FADE_INOUT)';
 settings.loop=1;
 settings.counter=0;
 settings.blocksize = blocksize;
@@ -86,6 +86,7 @@ y=zeros(settings.blocksize,4);                                  %init the output
 
 % Audio realtime loop                                           %here here
 % here here here here
+figure;
 drawnow
 while (settings.audioprocessing == 1)
     
@@ -111,7 +112,7 @@ while (settings.audioprocessing == 1)
             while(playrec('isFinished', pageNumList(1)) == 0)
             end
         else
-            playrec('block', pageNumList(1));               %hold on
+            playrec('block', pageNumList(1));               %play
         end
         
         %1) Write ready block into output variable
@@ -123,21 +124,24 @@ while (settings.audioprocessing == 1)
         % toc         
         
         x=getNextRecordBlock(settings.repeatCount);
-        %spetial case: crossfading
-        if(rem(settings.repeatCount,200)==0)
-        %x
-        end
+        %special case: crossfading
+
         % write output
         nextOutSamples(:,1:settings.numberOutputChans) = y;         
-        %test 
-        if (rem(settings.frameCount,500) == 0)                                  %rem = modulo
-            %disp(y)              %just print out state
-        end
-         %end test
+        %nextNumber = playrec('play', nextOutSamples, settings.outputChans);
+        plot(nextOutSamples);
+        drawnow
+        nextNumber = playrec('play', nextOutSamples, 2);
+        
         %% playrec
         playrec('delPage', pageNumList(1));           %move fifo buffer forward
-        pageNumList = pageNumList(2:end);
+        pageNumList = pageNumList(2:end); %disp(length(pageNumList))
         settings.repeatCount = settings.repeatCount + 1;    %loopcounter++
+
+        %pageNumList
+        %playrec('block', nextNumber);
+
+        %pageNumList(end) = nextNumber;
 
     end
     drawnow
