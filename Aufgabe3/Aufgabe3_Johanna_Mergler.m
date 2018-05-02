@@ -1,5 +1,5 @@
 function Aufgabe3
-%preprocess();
+preprocess();
 CreateGui();
 end
 
@@ -230,7 +230,7 @@ settings.initFilterA = 1;
 settings.DEGREES = 0;
 
 h.fig = figure('position', [800,200,320,420],'WindowKeyPressFcn',@KeyboardData,'Color',[1 1 1],'Resize','on','MenuBar','none', ...
-    'Units','pixels','NextPlot','replace', 'NumberTitle','off', 'ToolBar','none','Tag','IIS Realtime GUI','Name','Realtime Audioprocessing');
+    'Units','pixels','NextPlot','replace', 'NumberTitle','off', 'ToolBar','none','Tag','IIS Realtime GUI','Name','Aufgabe 3 - Johanna Mergler');
 
 h.StartStopPushButton = uicontrol('style', 'pushbutton','position',[30 340 120 40], ...
     'string' , 'Start Audio Processing','enable', 'inactive', 'buttondownfcn', {@StartStopPushButton});
