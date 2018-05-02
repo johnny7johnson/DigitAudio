@@ -86,7 +86,7 @@ y=zeros(settings.blocksize,4);                                  %init the output
                                                          %warum *4 matrix?
                                                          %%TODO? whyyyy
 settings.crossfading = false;
-global settings signals;
+
 
 % Audio realtime loop                                           %here here
 % here here here here
@@ -129,7 +129,10 @@ function nextBlock = getNextRecordBlock(currentBlockNumber)
     currentSliderPos = get(h.SliderDirection, 'Value');
 
     global settings signals;
-    cn = 13;        %myFixChannelNumber
+    global settings;
+
+    ind = find(signals.dirMap(:)==settings.DEGREES, 1);
+    cn = 2*ind-1;           %channelnumber       
     bs = settings.blocksize;
 
         
