@@ -1,5 +1,5 @@
 function Aufgabe3
-preprocess();
+%preprocess();
 CreateGui();
 end
 
@@ -91,6 +91,11 @@ loopdegree = settings.DEGREES;
 % here here here here
 drawnow
 while (settings.audioprocessing == 1)
+    while(settings.Pause == 1)
+         drawnow
+         pause(0.1);
+    end
+    
     settings.frameCount = settings.frameCount + 1;
     if (rem(settings.frameCount,100) == 0)                                  %rem = modulo
         fprintf('Frame %d is processed.\n', settings.frameCount)            %just print out state
@@ -203,6 +208,9 @@ settings.leftArea = 0;
 settings.rightArea = 1;
 settings.StartButton = 1;
 settings.StopButton = 0;
+settings.PauseButton = 1;
+settings.GoOnButton = 0;
+settings.Pause = 0;
 settings.Pass = 1;
 settings.ProcA = 0;
 settings.ProcB = 0;
@@ -224,8 +232,12 @@ settings.DEGREES = 0;
 h.fig = figure('position', [800,200,320,420],'WindowKeyPressFcn',@KeyboardData,'Color',[1 1 1],'Resize','on','MenuBar','none', ...
     'Units','pixels','NextPlot','replace', 'NumberTitle','off', 'ToolBar','none','Tag','IIS Realtime GUI','Name','Realtime Audioprocessing');
 
-h.StartStopPushButton = uicontrol('style', 'pushbutton','position',[70 340 160 40], ...
+h.StartStopPushButton = uicontrol('style', 'pushbutton','position',[30 340 120 40], ...
     'string' , 'Start Audio Processing','enable', 'inactive', 'buttondownfcn', {@StartStopPushButton});
+
+h.PausePushButton = uicontrol('style', 'pushbutton','position',[160 340 120 40], ...
+    'string' , 'Pause','enable', 'inactive', 'buttondownfcn', {@PausePushButton});
+
 
 h.BlocksizeLabel = uicontrol('Style','text',...
         'Position',[20 300 80 18],...
@@ -290,6 +302,23 @@ else
     settings.Start = 0;
     settings.Stop = 1;
     set(h.StartStopPushButton, 'String', 'Start Audio Processing');
+end
+end
+
+function PausePushButton (hObject, eventdata)
+global settings h;
+if (settings.audioprocessing == 1)
+    if(settings.Pause == 0)
+         settings.PauseButton = 0;
+         settings.GoOnButton = 1;
+         settings.Pause = 1;
+         set(h.PausePushButton, 'String', 'Go On');
+    else
+         settings.PauseButton = 1;
+         settings.GoOnButton = 0;
+         settings.Pause = 0;
+         set(h.PausePushButton, 'String', 'Pause');
+    end
 end
 end
 
