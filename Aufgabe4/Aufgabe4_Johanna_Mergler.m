@@ -82,13 +82,11 @@ playrec('init', settings.samplerate, settings.outputDeviceID, settings.inputDevi
 warning('off');
 
 y=zeros(settings.blocksize,4);                                  %init the output
-                                                         %warum *4 matrix?
-                                                         %%TODO? whyyyy
+
 settings.crossfading = false;
 loopdegree = settings.DEGREES;
 
-% Audio realtime loop                                           %here here
-% here here here here
+% Audio realtime loop                                           
 drawnow
 while (settings.audioprocessing == 1)
     while(settings.Pause == 1)
@@ -101,11 +99,10 @@ while (settings.audioprocessing == 1)
         fprintf('Frame %d is processed.\n', settings.frameCount)            %just print out state
     end
     
-    %get next block(s) to play
+   %get next block(s) for play
    if(loopdegree == settings.DEGREES)   %case 
         nextOut=getNextRecordBlock(settings.repeatCount);
    else     %case Crossfading
-       %nextOut = zeros(10*512,2);
        disp('Crossfading NOW'); %TODO do crossfading here
        firstSig = extractXDegreeChannels(settings.repeatCount, settings.FADE_BLOCKS, loopdegree);
        secondSig = extractXDegreeChannels(settings.repeatCount, settings.FADE_BLOCKS, settings.DEGREES);
@@ -230,7 +227,7 @@ settings.initFilterA = 1;
 settings.DEGREES = 0;
 
 h.fig = figure('position', [800,200,320,420],'WindowKeyPressFcn',@KeyboardData,'Color',[1 1 1],'Resize','on','MenuBar','none', ...
-    'Units','pixels','NextPlot','replace', 'NumberTitle','off', 'ToolBar','none','Tag','IIS Realtime GUI','Name','Realtime Audioprocessing');
+    'Units','pixels','NextPlot','replace', 'NumberTitle','off', 'ToolBar','none','Tag','IIS Realtime GUI','Name','Aufgabe 4 - Johanna Mergler');
 
 h.StartStopPushButton = uicontrol('style', 'pushbutton','position',[30 340 120 40], ...
     'string' , 'Start Audio Processing','enable', 'inactive', 'buttondownfcn', {@StartStopPushButton});
@@ -393,9 +390,7 @@ for d = degrees
     counter = counter + 1;
 end
 clear counter;  clear cast1_r; clear cast2_l; clear cast2_r; clear d;
-%generate linear function arrays for crossfading blocks.
 
-%givenBlockSize = 1024;                                %as default
 global settings signals;
 signals.castanetes = castanetes;
 signals.spatialSignals = convoluted;
@@ -404,9 +399,8 @@ end
 
 
 function ch = extractXDegreeHRIR(degree, MultiChannelHRIR, ChannelMAP)
-%load 0° Head rotation HRIR
 IndexOfZeroInMap = findXDegreesFirstIndex(degree, ChannelMAP);
-ZeroDegreePosition = (IndexOfZeroInMap*2)-1;                      %because gleft and right channel
+ZeroDegreePosition = (IndexOfZeroInMap*2)-1;                     
 ch = MultiChannelHRIR(1:end, ZeroDegreePosition:ZeroDegreePosition+1);
 end
 
@@ -417,23 +411,16 @@ searchTerm = degree - 1;
 ind = find(myMAP(2,:)>searchTerm, 1);
 end
 
-%% Aufgabe4
+%% Aufgabe4 - Convolution in frequency domain
 
 function y = convViaFFT(u, v)
+    len = length(u);
+    if(length(v)>len)
+        len = length(v);
+    end
 
-global settings test;
-test.first = u;
-len = length(u);
-test.second = v;
-if(length(v)>len)
-    len = length(v);
-end
-
-U = fft(u, len);
-test.U = U;
-V = fft(v, len);
-test.V = V;
-Y = U.*V;
-y = ifft(Y);
-test.convoluted = y;
+    U = fft(u, len);
+    V = fft(v, len);
+    Y = U.*V;
+    y = ifft(Y);
 end
