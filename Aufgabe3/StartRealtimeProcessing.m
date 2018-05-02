@@ -52,7 +52,8 @@ else
 end
 
 settings.outputDeviceID = soundadaptor;
-settings.inputDeviceID = soundadaptor;
+%settings.inputDeviceID = soundadaptor;
+settings.inputDeviceID = -1;
 settings.inputChans = inputchans;
 settings.outputChans = outputchans;
 settings.numberInputChans = inputchans(end) - inputchans(1) +1;
@@ -82,69 +83,38 @@ playrec('init', settings.samplerate, settings.outputDeviceID, settings.inputDevi
 warning('off');
 
 y=zeros(settings.blocksize,4);                                  %init the output
-                                                          %warum *4 matrix?
-
+                                                         %warum *4 matrix?
+                                                         %%TODO? whyyyy
+settings.crossfading = false;
 % Audio realtime loop                                           %here here
 % here here here here
-figure;
 drawnow
 while (settings.audioprocessing == 1)
-    
     settings.frameCount = settings.frameCount + 1;
     if (rem(settings.frameCount,100) == 0)                                  %rem = modulo
         fprintf('Frame %d is processed.\n', settings.frameCount)            %just print out state
     end
-    pageNumList = [pageNumList playrec('playrec', nextOutSamples, settings.outputChans, -1, settings.inputChans)];
     
-    if(settings.repeatCount==1)
+   nextOut=getNextRecordBlock(settings.repeatCount);
+   pageNumList = [pageNumList playrec('play', nextOut, settings.outputChans)];        %queue into output queue (buffer)
+
+   if(settings.repeatCount==1)
         %This is the first time through so reset the skipped sample count
         playrec('resetSkippedSampleCount');
-    end
+   end
     
-    % pr.runMaxSpeed==true means a very tight while loop is entered until the
-    % page has completed whereas when pr.runMaxSpeed==false the 'block' !!!
-    % command in playrec is used.  This repeatedly suspends the thread
-    % until the page has completed, meaning the time between page
-    % completing and the 'block' command returning can be much longer than
-    % that with the tight while loop
-    if(length(pageNumList) > settings.pageBufCount)         %= if there is something left to compile
+    if(length(pageNumList) > settings.pageBufCount)
         if(settings.runMaxSpeed)
             while(playrec('isFinished', pageNumList(1)) == 0)
             end
-        else
-            playrec('block', pageNumList(1));               %play
+        else        
+            playrec('block', pageNumList(1));
         end
-        
-        %1) Write ready block into output variable
-        x = double(playrec('getRec', pageNumList(1)));             % get input
-        % tic           -> sample block der raus geschreiben wird
-        y = x;                                                      % process audioblock
-                                                                    % --> here audio blockprocessing has to be implemented!
-        %2) Calculate next block
-        % toc         
-        
-        x=getNextRecordBlock(settings.repeatCount);
-        %special case: crossfading
 
-        % write output
-        nextOutSamples(:,1:settings.numberOutputChans) = y;         
-        %nextNumber = playrec('play', nextOutSamples, settings.outputChans);
-        plot(nextOutSamples);
-        drawnow
-        nextNumber = playrec('play', nextOutSamples, 2);
-        
-        %% playrec
-        playrec('delPage', pageNumList(1));           %move fifo buffer forward
-        pageNumList = pageNumList(2:end); %disp(length(pageNumList))
-        settings.repeatCount = settings.repeatCount + 1;    %loopcounter++
-
-        %pageNumList
-        %playrec('block', nextNumber);
-
-        %pageNumList(end) = nextNumber;
-
+        pageNumList = pageNumList(2:end);
     end
-    drawnow
+    settings.repeatCount = settings.repeatCount + 1; %loopcounter++
+
 end
 
 playrec('delPage');
