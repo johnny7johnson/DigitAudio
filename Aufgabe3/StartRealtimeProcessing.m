@@ -86,7 +86,7 @@ y=zeros(settings.blocksize,4);                                  %init the output
                                                          %warum *4 matrix?
                                                          %%TODO? whyyyy
 settings.crossfading = false;
-
+loopdegree = settings.DEGREES;
 
 % Audio realtime loop                                           %here here
 % here here here here
@@ -97,7 +97,20 @@ while (settings.audioprocessing == 1)
         fprintf('Frame %d is processed.\n', settings.frameCount)            %just print out state
     end
     
-   nextOut=getNextRecordBlock(settings.repeatCount);
+    %get next block(s) to play
+   if(loopdegree == settings.DEGREES)   %case 
+        nextOut=getNextRecordBlock(settings.repeatCount);
+   else     %case Crossfading
+       %nextOut = zeros(10*512,2);
+       disp('Crossfading NOW'); %TODO do crossfading here
+       firstSig = extractXDegreeChannels(settings.repeatCount, settings.FADE_BLOCKS, loopdegree);
+       secondSig = extractXDegreeChannels(settings.repeatCount, settings.FADE_BLOCKS, settings.DEGREES);
+  
+       nextOut = crossfade(firstSig,secondSig, settings.FADE_BLOCKS, settings.blocksize);
+       settings.repeatCount = settings.repeatCount + settings.FADE_BLOCKS -1;
+   end
+   
+   %process next block(s)
    pageNumList = [pageNumList playrec('play', nextOut, settings.outputChans)];        %queue into output queue (buffer)
 
    if(settings.repeatCount==1)
@@ -105,6 +118,7 @@ while (settings.audioprocessing == 1)
         playrec('resetSkippedSampleCount');
    end
     
+   %play the next block(s)
     if(length(pageNumList) > settings.pageBufCount)
         if(settings.runMaxSpeed)
             while(playrec('isFinished', pageNumList(1)) == 0)
@@ -116,6 +130,7 @@ while (settings.audioprocessing == 1)
         pageNumList = pageNumList(2:end);
     end
     settings.repeatCount = settings.repeatCount + 1; %loopcounter++
+    loopdegree = settings.DEGREES;      %mark which direction has been selected
     drawnow
 end
 
@@ -125,31 +140,52 @@ return
 end
 
 function nextBlock = getNextRecordBlock(currentBlockNumber)
-    global settings h;
-    currentSliderPos = get(h.SliderDirection, 'Value');
-
-    global settings signals;
     global settings;
+    nextBlock = extractXDegreeChannels(currentBlockNumber, 1, settings.DEGREES);
+end
 
-    ind = find(signals.dirMap(:)==settings.DEGREES, 1);
+function blocks = extractXDegreeChannels(currentBlockNumber, blockCount, degree)
+ global settings signals;
+ global settings;
+ ind = find(signals.dirMap(:)==degree, 1);
     cn = 2*ind-1;           %channelnumber       
     bs = settings.blocksize;
-
-        
-    %stop loop if record is over
+    
+        %stop loop if record is over
     if((currentBlockNumber+1)*bs>=length(signals.spatialSignals(:,cn)))
-        nextBlock = [];
+        blocks = [];
         settings.audioprocessing = 0;
+        settings.repeatCount = 1;
         disp('stopped loop because record is over')
         return
     end
     
-    nextBlock = signals.spatialSignals(currentBlockNumber*bs:(currentBlockNumber+1)*bs,cn:cn+1);
-
-    %just coose the current slider possition
-    %TODO
-
-        
+    blocks = signals.spatialSignals(currentBlockNumber*bs:(currentBlockNumber+blockCount)*bs-1,cn:cn+1);
 end
 
+function sig = fadeEmUp(bichannelBlocks, blocks, blocksize)           %given the blocks in which the singal shoud be merged
+    disp(length(bichannelBlocks(:,1)));
+    line = rot90(linspace(0,1, blocks*blocksize),3);
+    disp(length(line));
+    sig(:,1) = bichannelBlocks(:,1).*line;   
+    sig(:,2) = bichannelBlocks(:,2).*line;
+end
+
+function sig = fadeEmDown(bichannelBlocks, blocks, blocksize)         %given the blocks in which the singal shoud be merged
+    disp(length(bichannelBlocks(:,1)));
+    
+line = rot90(linspace(1,0, blocks*blocksize),3);
+        disp(length(line));
+
+    sig(:,1) = bichannelBlocks(:,1).*line;
+    sig(:,2) = bichannelBlocks(:,2).*line;
+end
+
+function sig = crossfade(currentSignalBlocks, nextSignalBlocks, blocks, blocksize)
+upfaded = fadeEmUp(nextSignalBlocks, blocks, blocksize);
+downfaded = fadeEmDown(currentSignalBlocks, blocks, blocksize);
+%l mit l und r mit r?
+sig(:,1) = upfaded(:,1) + downfaded(:,1);
+sig(:,2) = upfaded(:,2) + downfaded(:,2);
+end
 

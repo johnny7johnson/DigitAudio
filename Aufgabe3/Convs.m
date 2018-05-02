@@ -28,10 +28,10 @@ clear counter;  clear cast1_r; clear cast2_l; clear cast2_r; clear d;
 global settings signals;
 signals.castanetes = castanetes;
 signals.spatialSignals = convoluted;
+signals.dirMap = [60 50 40 30 20 10 0 -10 -20 -30 -40 -50 -60];
 end
-%% gui
-%RealtimeGUI
-%% gui
+
+
 
 function plotEm
 %just test
@@ -67,7 +67,6 @@ function sig = fadeEmUp(bichannelBlocks, blocks, blocksize)           %given the
     sig(:,2) = bichannelBlocks(:,2).*line;
 end
 
-%TODO -> do not convolute - > elementwise multiplication
 function sig = fadeEmDown(bichannelBlocks, blocks, blocksize)         %given the blocks in which the singla shoud be merged
     line = rot90(linspace(1,0, blocks*blocksize),3);
     sig(:,1) = bichannelBlocks(:,1).*line;
@@ -87,3 +86,4 @@ end
 % 2) GUI -> slider funktioniert zum verstellen im aktuellen band
 % 3) Crossfading
 % 4) life in die gui bringen 
+% 5) links <-> rechts vertauschen
