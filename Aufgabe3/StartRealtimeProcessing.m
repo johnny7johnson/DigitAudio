@@ -86,6 +86,8 @@ y=zeros(settings.blocksize,4);                                  %init the output
                                                          %warum *4 matrix?
                                                          %%TODO? whyyyy
 settings.crossfading = false;
+global settings signals;
+
 % Audio realtime loop                                           %here here
 % here here here here
 drawnow
@@ -114,7 +116,7 @@ while (settings.audioprocessing == 1)
         pageNumList = pageNumList(2:end);
     end
     settings.repeatCount = settings.repeatCount + 1; %loopcounter++
-
+    drawnow
 end
 
 playrec('delPage');
